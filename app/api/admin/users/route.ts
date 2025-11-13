@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import prisma from "@/lib/prisma"
 import { verifySession, SESSION_COOKIE } from "@/lib/auth"
+// Types will be inferred; avoid tight coupling to generated Prisma types here
 
 async function getSession(request: Request) {
   const cookie = request.headers.get("cookie") || ""
@@ -17,8 +18,11 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const usersRaw = await prisma.user.findMany({
+    const usersRaw: Array<{
+      id: number; email: string; name: string | null; role: "ADMIN" | "COACH" | "STUDENT"; createdAt: Date; approved: boolean; approvedAt: Date | null
+    }> = await prisma.user.findMany({
       orderBy: { createdAt: "desc" },
+      select: { id: true, email: true, name: true, role: true, createdAt: true, approved: true, approvedAt: true },
     })
     const users = usersRaw.map((u) => ({
       id: u.id,
@@ -26,7 +30,7 @@ export async function GET(request: Request) {
       name: u.name,
       role: u.role as "ADMIN" | "COACH" | "STUDENT",
       createdAt: u.createdAt,
-      approved: (u as unknown as { approved?: boolean }).approved === true,
+      approved: u.approved,
     }))
     return NextResponse.json({ users })
   } catch (error) {
@@ -42,34 +46,34 @@ export async function PATCH(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
     const body = await request.json()
-    const { userId, role, approved } = body || {}
+  const { userId, role, approved } = body || {}
     if (!userId) {
       return NextResponse.json({ error: "userId is required" }, { status: 400 })
     }
-    const data: Record<string, unknown> = {}
+  const updateData: { role?: "ADMIN" | "COACH" | "STUDENT"; approved?: boolean; approvedAt?: Date | null } = {}
     if (role) {
       if (!["ADMIN", "COACH", "STUDENT"].includes(role)) {
         return NextResponse.json({ error: "Invalid role" }, { status: 400 })
       }
-      data.role = role
+  updateData.role = role as "ADMIN" | "COACH" | "STUDENT"
     }
     if (typeof approved === "boolean") {
-      ;(data as unknown as { approved?: boolean }).approved = approved
-      ;(data as unknown as { approvedAt?: Date | null }).approvedAt = approved ? new Date() : null
+  updateData.approved = approved
+  updateData.approvedAt = approved ? new Date() : null
     }
-    if (Object.keys(data).length === 0) {
+    if (Object.keys(updateData).length === 0) {
       return NextResponse.json({ error: "No fields to update" }, { status: 400 })
     }
     const updated = await prisma.user.update({
       where: { id: Number(userId) },
-      data: data as unknown as Record<string, never>,
+      data: updateData,
     })
     return NextResponse.json({
       user: {
         id: updated.id,
         email: updated.email,
         role: updated.role,
-        approved: (updated as unknown as { approved?: boolean }).approved === true,
+        approved: updated.approved,
       },
     })
   } catch (error) {

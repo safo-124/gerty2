@@ -13,19 +13,18 @@ type Coach = {
 async function getCoaches(): Promise<Coach[]> {
   // Query directly from the database on the server to avoid relative URL issues
   const coaches = await prisma.user.findMany({
-    where: { role: "COACH" },
+    where: { role: "COACH", approved: true },
     select: {
       id: true,
       name: true,
       email: true,
       coachProfile: { select: { bio: true, rating: true, availability: true } },
     },
+    orderBy: {
+      createdAt: "desc",
+    },
   })
-  // Only include approved coaches
-  const filtered = (coaches as unknown as (Coach & { approved?: boolean })[]).filter(
-    (c) => (c as unknown as { approved?: boolean }).approved !== false
-  )
-  return filtered as Coach[]
+  return coaches as Coach[]
 }
 
 export default async function CoachesPage() {

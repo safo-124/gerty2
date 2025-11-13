@@ -25,6 +25,7 @@ export async function POST(request: Request) {
         name: name || null,
         passwordHash,
         role: normalizedRole as "COACH" | "STUDENT",
+        approved: false,
         ...(normalizedRole === 'COACH' ? { coachProfile: { create: {} } } : { studentProfile: { create: {} } })
       },
       select: { id: true, email: true, name: true, role: true }

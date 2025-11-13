@@ -32,8 +32,7 @@ export async function POST(request: Request) {
     }
 
     // Require admin approval for non-admin accounts
-  const approved = (user as unknown as { approved?: boolean }).approved
-    if (user.role !== "ADMIN" && approved !== true) {
+    if (user.role !== "ADMIN" && user.approved !== true) {
       return NextResponse.json({ error: "Your account is pending admin approval." }, { status: 403 })
     }
 
