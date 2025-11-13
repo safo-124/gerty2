@@ -17,7 +17,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { cn } from "@/lib/utils"
-import { Menu, ChevronDown } from "lucide-react"
+import { Menu, ChevronDown, User, LogOut, LayoutDashboard, Sparkles } from "lucide-react"
 
 export function Navbar() {
   const [open, setOpen] = useState(false)
@@ -31,19 +31,27 @@ export function Navbar() {
   }, [])
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 glass-strong">
+    <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-gray-950/80 border-b border-white/10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center justify-between h-20">
           {/* Logo */}
-          <Link href="/" className="flex items-center space-x-2">
-            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-xl">
-              ♔
+          <Link href="/" className="flex items-center space-x-3 group">
+            <div className="relative">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 flex items-center justify-center text-white font-bold text-2xl shadow-lg shadow-purple-500/30 transition-transform group-hover:scale-110 group-hover:rotate-6">
+                ♔
+              </div>
+              <div className="absolute inset-0 w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 blur-lg opacity-50 group-hover:opacity-70 transition-opacity" />
             </div>
-            <span className="font-bold text-xl hidden sm:inline-block">Chess Academy</span>
+            <div className="hidden sm:block">
+              <span className="font-bold text-xl bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+                Chess Academy
+              </span>
+              <div className="text-xs opacity-50 -mt-1">Master the Game</div>
+            </div>
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-1">
+          <div className="hidden md:flex items-center space-x-1 bg-white/5 rounded-full px-2 py-1.5 border border-white/10">
             <NavLink href="/about">About</NavLink>
             <NavLink href="/blog">Blog</NavLink>
             <NavLink href="/tournaments">Tournaments</NavLink>
@@ -52,11 +60,11 @@ export function Navbar() {
             {/* Dropdown for Community */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="flex items-center gap-1">
+                <Button variant="ghost" size="sm" className="flex items-center gap-1 hover:bg-white/10 rounded-full">
                   Community <ChevronDown className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="glass-strong">
+              <DropdownMenuContent className="glass-strong border border-white/20 mt-2">
                 <DropdownMenuItem asChild>
                   <Link href="/donate" className="cursor-pointer">Donate</Link>
                 </DropdownMenuItem>
@@ -68,12 +76,13 @@ export function Navbar() {
           </div>
 
           {/* Desktop Auth Buttons */}
-          <div className="hidden md:flex items-center space-x-2">
+          <div className="hidden md:flex items-center space-x-3">
             {user ? (
               <>
                 {/* Dashboard button */}
-                <Button asChild size="sm" className="bg-gradient-to-r from-blue-500 to-purple-600 text-white border-0">
+                <Button asChild size="sm" className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-white border-0 shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50 hover:scale-105 transition-all">
                   <Link href={user.role === "ADMIN" ? "/admin" : user.role === "COACH" ? "/coach" : "/coaches"}>
+                    <Sparkles className="w-4 h-4 mr-2" />
                     Dashboard
                   </Link>
                 </Button>
@@ -81,24 +90,34 @@ export function Navbar() {
                 {/* User menu */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="outline" className="glass">
+                    <Button variant="outline" className="glass border-white/20 hover:border-purple-500/50 hover:bg-white/5">
+                      <User className="w-4 h-4 mr-2" />
                       {user.name || user.email}
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent className="glass-strong">
+                  <DropdownMenuContent className="glass-strong border border-white/20 mt-2 min-w-[200px]">
                     {user.role === "ADMIN" && (
                       <DropdownMenuItem asChild>
-                        <Link href="/admin">Admin Dashboard</Link>
+                        <Link href="/admin" className="flex items-center">
+                          <LayoutDashboard className="w-4 h-4 mr-2" />
+                          Admin Dashboard
+                        </Link>
                       </DropdownMenuItem>
                     )}
                     {user.role === "COACH" && (
                       <DropdownMenuItem asChild>
-                        <Link href="/coach">Coach Dashboard</Link>
+                        <Link href="/coach" className="flex items-center">
+                          <LayoutDashboard className="w-4 h-4 mr-2" />
+                          Coach Dashboard
+                        </Link>
                       </DropdownMenuItem>
                     )}
                     <DropdownMenuItem asChild>
                       <form method="POST" action="/api/auth/logout">
-                        <button type="submit" className="w-full text-left">Logout</button>
+                        <button type="submit" className="w-full text-left flex items-center">
+                          <LogOut className="w-4 h-4 mr-2" />
+                          Logout
+                        </button>
                       </form>
                     </DropdownMenuItem>
                   </DropdownMenuContent>
@@ -106,11 +125,14 @@ export function Navbar() {
               </>
             ) : (
               <>
-                <Button asChild variant="outline" size="sm" className="glass">
+                <Button asChild variant="outline" size="sm" className="glass border-white/20 hover:border-white/40 hover:bg-white/5">
                   <Link href="/login">Login</Link>
                 </Button>
-                <Button asChild size="sm" className="bg-gradient-to-r from-blue-500 to-purple-600 text-white border-0">
-                  <Link href="/signup">Sign Up</Link>
+                <Button asChild size="sm" className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-white border-0 shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50 hover:scale-105 transition-all">
+                  <Link href="/signup">
+                    <Sparkles className="w-4 h-4 mr-2" />
+                    Sign Up
+                  </Link>
                 </Button>
               </>
             )}
@@ -119,20 +141,28 @@ export function Navbar() {
           {/* Mobile Menu Button */}
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild className="md:hidden">
-              <Button variant="ghost" size="icon" className="glass">
+              <Button variant="ghost" size="icon" className="glass border border-white/10 hover:border-purple-500/50 hover:bg-white/5">
                 <Menu className="h-6 w-6" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="glass-strong w-[300px]">
+            <SheetContent side="right" className="glass-strong w-[320px] border-l border-white/10">
               <SheetHeader>
-                <SheetTitle className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold">
-                    ♔
+                <SheetTitle className="flex items-center gap-3">
+                  <div className="relative">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-purple-500/30">
+                      ♔
+                    </div>
+                    <div className="absolute inset-0 w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 blur-md opacity-50" />
                   </div>
-                  Chess Academy
+                  <div>
+                    <div className="font-bold text-lg bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+                      Chess Academy
+                    </div>
+                    <div className="text-xs opacity-50 -mt-0.5">Master the Game</div>
+                  </div>
                 </SheetTitle>
               </SheetHeader>
-              <div className="flex flex-col gap-4 mt-8">
+              <div className="flex flex-col gap-2 mt-8">
                 <MobileNavLink href="/about" onClick={() => setOpen(false)}>
                   About
                 </MobileNavLink>
@@ -156,22 +186,38 @@ export function Navbar() {
                     href={user.role === "ADMIN" ? "/admin" : user.role === "COACH" ? "/coach" : "/coaches"}
                     onClick={() => setOpen(false)}
                   >
+                    <Sparkles className="w-4 h-4 inline mr-2" />
                     Dashboard
                   </MobileNavLink>
                 )}
                 
-                <div className="border-t border-white/10 pt-4 mt-4 space-y-2">
+                <div className="border-t border-white/10 pt-4 mt-4 space-y-3">
                   {user ? (
-                    <form method="POST" action="/api/auth/logout" onSubmit={() => setOpen(false)}>
-                      <Button type="submit" variant="outline" size="sm" className="glass w-full">Logout</Button>
-                    </form>
+                    <>
+                      <div className="px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-sm">
+                        <div className="flex items-center gap-2 opacity-70 mb-1">
+                          <User className="w-4 h-4" />
+                          Signed in as
+                        </div>
+                        <div className="font-medium truncate">{user.name || user.email}</div>
+                      </div>
+                      <form method="POST" action="/api/auth/logout" onSubmit={() => setOpen(false)}>
+                        <Button type="submit" variant="outline" size="sm" className="glass w-full border-white/20">
+                          <LogOut className="w-4 h-4 mr-2" />
+                          Logout
+                        </Button>
+                      </form>
+                    </>
                   ) : (
                     <>
-                      <Button asChild variant="outline" size="sm" className="glass w-full">
+                      <Button asChild variant="outline" size="sm" className="glass w-full border-white/20">
                         <Link href="/login" onClick={() => setOpen(false)}>Login</Link>
                       </Button>
-                      <Button asChild size="sm" className="bg-gradient-to-r from-blue-500 to-purple-600 text-white border-0 w-full">
-                        <Link href="/signup" onClick={() => setOpen(false)}>Sign Up</Link>
+                      <Button asChild size="sm" className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-white border-0 w-full shadow-lg shadow-purple-500/30">
+                        <Link href="/signup" onClick={() => setOpen(false)}>
+                          <Sparkles className="w-4 h-4 mr-2" />
+                          Sign Up
+                        </Link>
                       </Button>
                     </>
                   )}
@@ -190,8 +236,8 @@ function NavLink({ href, children }: { href: string; children: React.ReactNode }
     <Link
       href={href}
       className={cn(
-        "px-3 py-2 rounded-md text-sm font-medium transition-all",
-        "hover:bg-white/10 dark:hover:bg-black/20"
+        "px-4 py-2 rounded-full text-sm font-medium transition-all",
+        "hover:bg-white/10 hover:text-transparent hover:bg-gradient-to-r hover:from-blue-400 hover:to-purple-400 hover:bg-clip-text"
       )}
     >
       {children}
@@ -205,8 +251,8 @@ function MobileNavLink({ href, children, onClick }: { href: string; children: Re
       href={href}
       onClick={onClick}
       className={cn(
-        "block px-4 py-3 rounded-lg text-base font-medium transition-all",
-        "hover:bg-white/10 dark:hover:bg-black/20"
+        "block px-4 py-3 rounded-xl text-base font-medium transition-all border border-transparent",
+        "hover:bg-white/5 hover:border-purple-500/30 hover:text-transparent hover:bg-gradient-to-r hover:from-blue-400 hover:to-purple-400 hover:bg-clip-text"
       )}
     >
       {children}
