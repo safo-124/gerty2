@@ -81,7 +81,7 @@ export function Navbar() {
               <>
                 {/* Dashboard button */}
                 <Button asChild size="sm" className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-white border-0 shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50 hover:scale-105 transition-all">
-                  <Link href={user.role === "ADMIN" ? "/admin" : user.role === "COACH" ? "/coach" : "/coaches"}>
+                  <Link href={user.role === "ADMIN" ? "/admin" : user.role === "COACH" ? "/coach" : user.role === "STUDENT" ? "/student" : "/coaches"}>
                     <Sparkles className="w-4 h-4 mr-2" />
                     Dashboard
                   </Link>
@@ -183,7 +183,7 @@ export function Navbar() {
                 </MobileNavLink>
                 {user && (
                   <MobileNavLink
-                    href={user.role === "ADMIN" ? "/admin" : user.role === "COACH" ? "/coach" : "/coaches"}
+                    href={user.role === "ADMIN" ? "/admin" : user.role === "COACH" ? "/coach" : user.role === "STUDENT" ? "/student" : "/coaches"}
                     onClick={() => setOpen(false)}
                   >
                     <Sparkles className="w-4 h-4 inline mr-2" />

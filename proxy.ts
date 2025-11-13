@@ -7,7 +7,9 @@ export async function proxy(req: NextRequest) {
 
   const protectedAdmin = pathname.startsWith("/admin")
   const protectedCoach = pathname.startsWith("/coach")
-  if (!protectedAdmin && !protectedCoach) {
+  const protectedStudent = pathname.startsWith("/student")
+  
+  if (!protectedAdmin && !protectedCoach && !protectedStudent) {
     return NextResponse.next()
   }
 
@@ -29,10 +31,13 @@ export async function proxy(req: NextRequest) {
   if (protectedCoach && !(session.role === "COACH" || session.role === "ADMIN")) {
     return NextResponse.redirect(new URL("/login", req.url))
   }
+  if (protectedStudent && !(session.role === "STUDENT" || session.role === "ADMIN")) {
+    return NextResponse.redirect(new URL("/login", req.url))
+  }
 
   return NextResponse.next()
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/coach/:path*", "/api/admin/:path*"],
+  matcher: ["/admin/:path*", "/coach/:path*", "/student/:path*", "/api/admin/:path*", "/api/student/:path*"],
 }

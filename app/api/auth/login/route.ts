@@ -38,7 +38,7 @@ export async function POST(request: Request) {
 
   const token = await createSession({ sub: String(user.id), email: user.email, role: user.role as "ADMIN" | "COACH" | "STUDENT" })
     const isFormPost = contentType.includes("application/x-www-form-urlencoded") || contentType.includes("multipart/form-data") || !contentType.includes("application/json")
-    const destination = user.role === "ADMIN" ? "/admin" : user.role === "COACH" ? "/coach" : "/coaches"
+    const destination = user.role === "ADMIN" ? "/admin" : user.role === "COACH" ? "/coach" : user.role === "STUDENT" ? "/student" : "/coaches"
     const res = isFormPost
       ? NextResponse.redirect(new URL(destination, request.url))
       : NextResponse.json({ success: true, redirect: destination })
