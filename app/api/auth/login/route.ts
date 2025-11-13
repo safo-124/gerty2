@@ -31,6 +31,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Invalid credentials" }, { status: 401 })
     }
 
+    // Require admin approval for non-admin accounts
+  const approved = (user as unknown as { approved?: boolean }).approved
+    if (user.role !== "ADMIN" && approved !== true) {
+      return NextResponse.json({ error: "Your account is pending admin approval." }, { status: 403 })
+    }
+
   const token = await createSession({ sub: String(user.id), email: user.email, role: user.role as "ADMIN" | "COACH" | "STUDENT" })
     const isFormPost = contentType.includes("application/x-www-form-urlencoded") || contentType.includes("multipart/form-data") || !contentType.includes("application/json")
     const res = isFormPost

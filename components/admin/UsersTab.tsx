@@ -12,6 +12,7 @@ interface AdminUser {
   name: string | null
   role: "ADMIN" | "COACH" | "STUDENT"
   createdAt: string
+  approved?: boolean
 }
 
 export function UsersTab() {
@@ -60,6 +61,47 @@ export function UsersTab() {
     }
   }
 
+  async function approveUser(id: number, approved: boolean) {
+    setSaving(id)
+    setError(null)
+    try {
+      const res = await fetch("/api/admin/users", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: id, approved }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || "Failed to update approval")
+      setUsers((prev) => prev.map((u) => (u.id === id ? { ...u, approved } : u)))
+    } catch (e) {
+      const message = e instanceof Error ? e.message : "Unknown error"
+      setError(message)
+    } finally {
+      setSaving(null)
+    }
+  }
+
+  async function deleteUser(id: number) {
+    if (!confirm("Are you sure you want to delete this user? This cannot be undone.")) return
+    setSaving(id)
+    setError(null)
+    try {
+      const res = await fetch("/api/admin/users", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: id }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || "Failed to delete user")
+      setUsers((prev) => prev.filter((u) => u.id !== id))
+    } catch (e) {
+      const message = e instanceof Error ? e.message : "Unknown error"
+      setError(message)
+    } finally {
+      setSaving(null)
+    }
+  }
+
   return (
     <Card className="p-6 glass">
       <div className="flex items-center justify-between mb-4">
@@ -75,13 +117,15 @@ export function UsersTab() {
         <p className="opacity-70">No users found.</p>
       ) : (
         <div className="overflow-auto">
-          <Table className="min-w-[700px]">
+          <Table className="min-w-[900px]">
             <TableHeader>
               <TableRow>
                 <TableHead>ID</TableHead>
                 <TableHead>Email</TableHead>
                 <TableHead>Name</TableHead>
                 <TableHead>Role</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
                 <TableHead>Created</TableHead>
               </TableRow>
             </TableHeader>
@@ -106,6 +150,27 @@ export function UsersTab() {
                         <SelectItem value="STUDENT">STUDENT</SelectItem>
                       </SelectContent>
                     </Select>
+                  </TableCell>
+                  <TableCell>
+                    {u.role === "ADMIN" ? (
+                      <span className="text-xs opacity-70">N/A</span>
+                    ) : u.approved ? (
+                      <span className="text-green-500 text-xs font-medium">Approved</span>
+                    ) : (
+                      <span className="text-yellow-500 text-xs font-medium">Pending</span>
+                    )}
+                  </TableCell>
+                  <TableCell className="text-right space-x-2">
+                    {u.role !== "ADMIN" && (
+                      <>
+                        {u.approved ? (
+                          <Button variant="outline" size="sm" disabled={saving === u.id} onClick={() => approveUser(u.id, false)}>Unapprove</Button>
+                        ) : (
+                          <Button size="sm" disabled={saving === u.id} onClick={() => approveUser(u.id, true)}>Approve</Button>
+                        )}
+                        <Button variant="destructive" size="sm" disabled={saving === u.id} onClick={() => deleteUser(u.id)}>Delete</Button>
+                      </>
+                    )}
                   </TableCell>
                   <TableCell className="text-xs opacity-70">
                     {new Date(u.createdAt).toLocaleDateString()}

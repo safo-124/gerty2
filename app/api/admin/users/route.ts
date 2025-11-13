@@ -17,10 +17,17 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const users = await prisma.user.findMany({
+    const usersRaw = await prisma.user.findMany({
       orderBy: { createdAt: "desc" },
-      select: { id: true, email: true, name: true, role: true, createdAt: true },
     })
+    const users = usersRaw.map((u) => ({
+      id: u.id,
+      email: u.email,
+      name: u.name,
+      role: u.role as "ADMIN" | "COACH" | "STUDENT",
+      createdAt: u.createdAt,
+      approved: (u as unknown as { approved?: boolean }).approved === true,
+    }))
     return NextResponse.json({ users })
   } catch (error) {
     console.error("Admin users GET error:", error)
@@ -35,19 +42,65 @@ export async function PATCH(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
     const body = await request.json()
-    const { userId, role } = body || {}
-    if (!userId || !role || !["ADMIN", "COACH", "STUDENT"].includes(role)) {
-      return NextResponse.json({ error: "Invalid payload" }, { status: 400 })
+    const { userId, role, approved } = body || {}
+    if (!userId) {
+      return NextResponse.json({ error: "userId is required" }, { status: 400 })
     }
-
+    const data: Record<string, unknown> = {}
+    if (role) {
+      if (!["ADMIN", "COACH", "STUDENT"].includes(role)) {
+        return NextResponse.json({ error: "Invalid role" }, { status: 400 })
+      }
+      data.role = role
+    }
+    if (typeof approved === "boolean") {
+      ;(data as unknown as { approved?: boolean }).approved = approved
+      ;(data as unknown as { approvedAt?: Date | null }).approvedAt = approved ? new Date() : null
+    }
+    if (Object.keys(data).length === 0) {
+      return NextResponse.json({ error: "No fields to update" }, { status: 400 })
+    }
     const updated = await prisma.user.update({
       where: { id: Number(userId) },
-      data: { role },
-      select: { id: true, email: true, role: true },
+      data: data as unknown as Record<string, never>,
     })
-    return NextResponse.json({ user: updated })
+    return NextResponse.json({
+      user: {
+        id: updated.id,
+        email: updated.email,
+        role: updated.role,
+        approved: (updated as unknown as { approved?: boolean }).approved === true,
+      },
+    })
   } catch (error) {
     console.error("Admin users PATCH error:", error)
+    return NextResponse.json({ error: "Server error" }, { status: 500 })
+  }
+}
+
+export async function DELETE(request: Request) {
+  try {
+    const session = await getSession(request)
+    if (!session || session.role !== "ADMIN") {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+    const body = await request.json().catch(() => ({}))
+    const { userId } = body as { userId?: number }
+    if (!userId) return NextResponse.json({ error: "userId is required" }, { status: 400 })
+
+    const user = await prisma.user.findUnique({ where: { id: Number(userId) }, select: { id: true, role: true } })
+    if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 })
+    if (user.role === "ADMIN") return NextResponse.json({ error: "Cannot delete admin users" }, { status: 400 })
+
+    // Clean up simple dependent records (profiles) first
+    await prisma.studentProfile.deleteMany({ where: { userId: Number(userId) } })
+    await prisma.coachProfile.deleteMany({ where: { userId: Number(userId) } })
+
+    // Attempt to delete the user
+    await prisma.user.delete({ where: { id: Number(userId) } })
+    return NextResponse.json({ success: true })
+  } catch (error) {
+    console.error("Admin users DELETE error:", error)
     return NextResponse.json({ error: "Server error" }, { status: 500 })
   }
 }

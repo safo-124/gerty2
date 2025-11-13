@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 import { verifySession, SESSION_COOKIE } from "./lib/auth"
+import prisma from "./lib/prisma"
 
 export async function proxy(req: NextRequest) {
   const pathname = req.nextUrl.pathname
@@ -19,6 +20,18 @@ export async function proxy(req: NextRequest) {
   const session = await verifySession(token)
   if (!session) {
     return NextResponse.redirect(new URL("/login", req.url))
+  }
+
+  // Block unapproved non-admin users from protected areas
+  if (session.role !== "ADMIN") {
+    const userId = Number(session.sub)
+    if (!Number.isNaN(userId)) {
+      const user = await prisma.user.findUnique({ where: { id: userId } })
+      const approved = (user as unknown as { approved?: boolean } | null)?.approved
+      if (!approved) {
+        return NextResponse.redirect(new URL("/login", req.url))
+      }
+    }
   }
 
   if (protectedAdmin && session.role !== "ADMIN") {
