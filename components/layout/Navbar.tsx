@@ -31,7 +31,7 @@ export function Navbar() {
   }, [])
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-gray-950/80 border-b border-white/10">
+    <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-white/95 dark:bg-gray-950/80 border-b border-gray-200 dark:border-white/10 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
@@ -51,7 +51,7 @@ export function Navbar() {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-1 bg-white/5 rounded-full px-2 py-1.5 border border-white/10">
+          <div className="hidden md:flex items-center space-x-1 bg-gray-100/80 dark:bg-white/5 rounded-full px-2 py-1.5 border border-gray-200 dark:border-white/10">
             <NavLink href="/about">About</NavLink>
             <NavLink href="/blog">Blog</NavLink>
             <NavLink href="/tournaments">Tournaments</NavLink>
@@ -60,11 +60,11 @@ export function Navbar() {
             {/* Dropdown for Community */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="flex items-center gap-1 hover:bg-white/10 rounded-full">
+                <Button variant="ghost" size="sm" className="flex items-center gap-1 hover:bg-gray-200 dark:hover:bg-white/10 rounded-full">
                   Community <ChevronDown className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="glass-strong border border-white/20 mt-2">
+              <DropdownMenuContent className="bg-white dark:bg-gray-950 backdrop-blur-xl border border-gray-200 dark:border-white/20 mt-2">
                 <DropdownMenuItem asChild>
                   <Link href="/donate" className="cursor-pointer">Donate</Link>
                 </DropdownMenuItem>
@@ -90,12 +90,12 @@ export function Navbar() {
                 {/* User menu */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="outline" className="glass border-white/20 hover:border-purple-500/50 hover:bg-white/5">
+                    <Button variant="outline" className="bg-white dark:bg-transparent border-gray-300 dark:border-white/20 hover:border-purple-500/50 hover:bg-gray-50 dark:hover:bg-white/5">
                       <User className="w-4 h-4 mr-2" />
                       {user.name || user.email}
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent className="glass-strong border border-white/20 mt-2 min-w-[200px]">
+                  <DropdownMenuContent className="bg-white dark:bg-gray-950 backdrop-blur-xl border border-gray-200 dark:border-white/20 mt-2 min-w-[200px]">
                     {user.role === "ADMIN" && (
                       <DropdownMenuItem asChild>
                         <Link href="/admin" className="flex items-center">
@@ -125,7 +125,7 @@ export function Navbar() {
               </>
             ) : (
               <>
-                <Button asChild variant="outline" size="sm" className="glass border-white/20 hover:border-white/40 hover:bg-white/5">
+                <Button asChild variant="outline" size="sm" className="bg-white dark:bg-transparent border-gray-300 dark:border-white/20 hover:border-gray-400 dark:hover:border-white/40 hover:bg-gray-50 dark:hover:bg-white/5">
                   <Link href="/login">Login</Link>
                 </Button>
                 <Button asChild size="sm" className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-white border-0 shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50 hover:scale-105 transition-all">
@@ -141,11 +141,11 @@ export function Navbar() {
           {/* Mobile Menu Button */}
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild className="md:hidden">
-              <Button variant="ghost" size="icon" className="glass border border-white/10 hover:border-purple-500/50 hover:bg-white/5">
+              <Button variant="ghost" size="icon" className="bg-gray-100 dark:bg-transparent border border-gray-300 dark:border-white/10 hover:border-purple-500/50 hover:bg-gray-200 dark:hover:bg-white/5">
                 <Menu className="h-6 w-6" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="glass-strong w-[320px] border-l border-white/10">
+            <SheetContent side="right" className="bg-white dark:bg-gray-950 backdrop-blur-xl w-[320px] border-l border-gray-200 dark:border-white/10">
               <SheetHeader>
                 <SheetTitle className="flex items-center gap-3">
                   <div className="relative">
@@ -191,10 +191,10 @@ export function Navbar() {
                   </MobileNavLink>
                 )}
                 
-                <div className="border-t border-white/10 pt-4 mt-4 space-y-3">
+                <div className="border-t border-gray-200 dark:border-white/10 pt-4 mt-4 space-y-3">
                   {user ? (
                     <>
-                      <div className="px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-sm">
+                      <div className="px-4 py-2 rounded-lg bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-sm">
                         <div className="flex items-center gap-2 opacity-70 mb-1">
                           <User className="w-4 h-4" />
                           Signed in as
@@ -202,7 +202,7 @@ export function Navbar() {
                         <div className="font-medium truncate">{user.name || user.email}</div>
                       </div>
                       <form method="POST" action="/api/auth/logout" onSubmit={() => setOpen(false)}>
-                        <Button type="submit" variant="outline" size="sm" className="glass w-full border-white/20">
+                        <Button type="submit" variant="outline" size="sm" className="bg-white dark:bg-transparent w-full border-gray-300 dark:border-white/20">
                           <LogOut className="w-4 h-4 mr-2" />
                           Logout
                         </Button>
@@ -210,7 +210,7 @@ export function Navbar() {
                     </>
                   ) : (
                     <>
-                      <Button asChild variant="outline" size="sm" className="glass w-full border-white/20">
+                      <Button asChild variant="outline" size="sm" className="bg-white dark:bg-transparent w-full border-gray-300 dark:border-white/20">
                         <Link href="/login" onClick={() => setOpen(false)}>Login</Link>
                       </Button>
                       <Button asChild size="sm" className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-white border-0 w-full shadow-lg shadow-purple-500/30">
@@ -237,7 +237,7 @@ function NavLink({ href, children }: { href: string; children: React.ReactNode }
       href={href}
       className={cn(
         "px-4 py-2 rounded-full text-sm font-medium transition-all",
-        "hover:bg-white/10 hover:text-transparent hover:bg-gradient-to-r hover:from-blue-400 hover:to-purple-400 hover:bg-clip-text"
+        "hover:bg-gray-200 dark:hover:bg-white/10 hover:text-transparent hover:bg-gradient-to-r hover:from-blue-400 hover:to-purple-400 hover:bg-clip-text"
       )}
     >
       {children}
@@ -252,7 +252,7 @@ function MobileNavLink({ href, children, onClick }: { href: string; children: Re
       onClick={onClick}
       className={cn(
         "block px-4 py-3 rounded-xl text-base font-medium transition-all border border-transparent",
-        "hover:bg-white/5 hover:border-purple-500/30 hover:text-transparent hover:bg-gradient-to-r hover:from-blue-400 hover:to-purple-400 hover:bg-clip-text"
+        "hover:bg-gray-100 dark:hover:bg-white/5 hover:border-purple-500/30 hover:text-transparent hover:bg-gradient-to-r hover:from-blue-400 hover:to-purple-400 hover:bg-clip-text"
       )}
     >
       {children}
