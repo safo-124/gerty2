@@ -70,25 +70,40 @@ export function Navbar() {
           {/* Desktop Auth Buttons */}
           <div className="hidden md:flex items-center space-x-2">
             {user ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="glass">
-                    {user.name || user.email}
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="glass-strong">
-                  {user.role === "ADMIN" && (
+              <>
+                {/* Dashboard button */}
+                <Button asChild size="sm" className="bg-gradient-to-r from-blue-500 to-purple-600 text-white border-0">
+                  <Link href={user.role === "ADMIN" ? "/admin" : user.role === "COACH" ? "/coach" : "/coaches"}>
+                    Dashboard
+                  </Link>
+                </Button>
+
+                {/* User menu */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" className="glass">
+                      {user.name || user.email}
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="glass-strong">
+                    {user.role === "ADMIN" && (
+                      <DropdownMenuItem asChild>
+                        <Link href="/admin">Admin Dashboard</Link>
+                      </DropdownMenuItem>
+                    )}
+                    {user.role === "COACH" && (
+                      <DropdownMenuItem asChild>
+                        <Link href="/coach">Coach Dashboard</Link>
+                      </DropdownMenuItem>
+                    )}
                     <DropdownMenuItem asChild>
-                      <Link href="/admin">Admin Dashboard</Link>
+                      <form method="POST" action="/api/auth/logout">
+                        <button type="submit" className="w-full text-left">Logout</button>
+                      </form>
                     </DropdownMenuItem>
-                  )}
-                  <DropdownMenuItem asChild>
-                    <form method="POST" action="/api/auth/logout">
-                      <button type="submit" className="w-full text-left">Logout</button>
-                    </form>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </>
             ) : (
               <>
                 <Button asChild variant="outline" size="sm" className="glass">
@@ -136,6 +151,14 @@ export function Navbar() {
                 <MobileNavLink href="/shop" onClick={() => setOpen(false)}>
                   Shop
                 </MobileNavLink>
+                {user && (
+                  <MobileNavLink
+                    href={user.role === "ADMIN" ? "/admin" : user.role === "COACH" ? "/coach" : "/coaches"}
+                    onClick={() => setOpen(false)}
+                  >
+                    Dashboard
+                  </MobileNavLink>
+                )}
                 
                 <div className="border-t border-white/10 pt-4 mt-4 space-y-2">
                   {user ? (

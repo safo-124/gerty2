@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { verifySession, SESSION_COOKIE } from "@/lib/auth"
 import prisma from "@/lib/prisma"
+import { slugify } from "@/lib/slug"
 
 async function getSession(request: Request) {
   const cookie = request.headers.get("cookie") || ""
@@ -24,16 +25,17 @@ export async function PATCH(
     const id = parseInt(idParam)
     const { title, slug, content, excerpt, imageUrl, published } = await request.json()
 
+    const data: Record<string, unknown> = {}
+    if (title) data.title = title
+    if (slug) data.slug = slugify(slug)
+    if (content) data.content = content
+    if (excerpt !== undefined) data.excerpt = excerpt
+    if (imageUrl !== undefined) data.imageUrl = imageUrl
+    if (published !== undefined) data.published = published
+
     const post = await prisma.blogPost.update({
       where: { id },
-      data: {
-        ...(title && { title }),
-        ...(slug && { slug }),
-        ...(content && { content }),
-        ...(excerpt !== undefined && { excerpt }),
-        ...(imageUrl !== undefined && { imageUrl }),
-        ...(published !== undefined && { published }),
-      }
+      data
     })
 
     return NextResponse.json({ post })

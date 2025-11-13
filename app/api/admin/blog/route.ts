@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { verifySession, SESSION_COOKIE } from "@/lib/auth"
 import prisma from "@/lib/prisma"
+import { slugify } from "@/lib/slug"
 
 async function getSession(request: Request) {
   const cookie = request.headers.get("cookie") || ""
@@ -44,16 +45,18 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 })
     }
 
-    const { title, slug, content, excerpt, imageUrl, published } = await request.json()
+  const { title, slug, content, excerpt, imageUrl, published } = await request.json()
 
     if (!title || !slug || !content) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
     }
 
+    const normalizedSlug = slugify(slug || title)
+
     const post = await prisma.blogPost.create({
       data: {
         title,
-        slug,
+        slug: normalizedSlug,
         content,
         excerpt,
         imageUrl,
