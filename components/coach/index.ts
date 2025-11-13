@@ -1,0 +1,5 @@
+export { StudentsTab } from "./students/StudentsTab"
+export { CalendarTab } from "./calendar/CalendarTab"
+export { PuzzlesTab } from "./puzzles/PuzzlesTab"
+export { MessagesTab } from "./messages/MessagesTab"
+export { PaymentsTab } from "./payments/PaymentsTab"

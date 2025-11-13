@@ -1,22 +1,37 @@
-import { Card } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
+"use client"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { StudentsTab, CalendarTab, PuzzlesTab, MessagesTab, PaymentsTab } from "@/components/coach"
 
-export default function CoachPage() {
+export default function CoachDashboardPage() {
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Coach Dashboard</h1>
-      <div className="grid md:grid-cols-2 gap-4">
-        <Card className="p-6 glass">
-          <h2 className="font-semibold mb-2">My Lessons</h2>
-          <p className="text-sm opacity-80">Create and manage upcoming lessons.</p>
-          <div className="mt-4"><Button>Create Lesson</Button></div>
-        </Card>
-        <Card className="p-6 glass">
-          <h2 className="font-semibold mb-2">Students</h2>
-          <p className="text-sm opacity-80">View enrolled students and progress.</p>
-          <div className="mt-4"><Button>View Students</Button></div>
-        </Card>
-      </div>
+      <h1 className="text-3xl font-bold">Coach Dashboard</h1>
+
+      <Tabs defaultValue="students" className="w-full">
+        <TabsList className="glass w-full justify-start overflow-x-auto flex-wrap h-auto gap-1 p-2">
+          <TabsTrigger value="students">👥 Students</TabsTrigger>
+          <TabsTrigger value="calendar">📅 Calendar</TabsTrigger>
+          <TabsTrigger value="puzzles">♟️ Puzzles</TabsTrigger>
+          <TabsTrigger value="messages">💬 Messages</TabsTrigger>
+          <TabsTrigger value="payments">💰 Payments</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="students" className="mt-6">
+          <StudentsTab />
+        </TabsContent>
+        <TabsContent value="calendar" className="mt-6">
+          <CalendarTab />
+        </TabsContent>
+        <TabsContent value="puzzles" className="mt-6">
+          <PuzzlesTab />
+        </TabsContent>
+        <TabsContent value="messages" className="mt-6">
+          <MessagesTab />
+        </TabsContent>
+        <TabsContent value="payments" className="mt-6">
+          <PaymentsTab />
+        </TabsContent>
+      </Tabs>
     </div>
   )
 }
